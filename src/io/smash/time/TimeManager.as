@@ -9,24 +9,21 @@
 package io.smash.time
 {
     
-    import io.smash.Smash;
+    import flash.display.Stage;
+    import flash.events.TimerEvent;
+    import flash.utils.Timer;
+    import flash.utils.getQualifiedClassName;
+    import flash.utils.getTimer;
+    
     import io.smash.SmashUtil;
     import io.smash.core.ISmashManager;
     import io.smash.core.SmashComponent;
-    import io.smash.core.SmashGroup;
     import io.smash.debug.Logger;
     import io.smash.debug.Profiler;
     import io.smash.util.IPrioritizable;
     import io.smash.util.SimplePriorityQueue;
     import io.smash.util.TypeUtility;
     import io.smash.util.sprintf;
-    
-    import flash.display.Stage;
-    import flash.events.Event;
-    import flash.events.TimerEvent;
-    import flash.utils.Timer;
-    import flash.utils.getQualifiedClassName;
-    import flash.utils.getTimer;
     
     /**
      * The process manager manages all time related functionality in the engine.
@@ -84,6 +81,8 @@ package io.smash.time
         public const MAX_TICKS_PER_FRAME:int = 5;
         
         public var timer:Timer;
+		
+		public var invalidateOnFrame:Boolean = true;
         
         /**
          * The scale at which time advances. If this is set to 2, the game
@@ -185,9 +184,11 @@ package io.smash.time
             lastTime = -1.0;
             elapsed = 0.0;
             
+			var delay:Number = stage ? (1000 / stage.frameRate) : 32;
             if(!timer)
-                timer = new Timer(32);
-            timer.delay = 1000 / stage.frameRate;
+                timer = new Timer(delay);
+			else
+	            timer.delay = delay;
             timer.start();
             timer.addEventListener(TimerEvent.TIMER, onFrame);
             started = true;
@@ -480,7 +481,7 @@ package io.smash.time
             
             timer.start();
             event.updateAfterEvent();
-            if(stage)
+            if(invalidateOnFrame && stage)
                 stage.invalidate();
         }
         
