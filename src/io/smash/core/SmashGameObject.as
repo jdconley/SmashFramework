@@ -172,6 +172,10 @@ package io.smash.core
             // Look for un-added members.
             for each(var key:String in TypeUtility.getListOfPublicFields(this))
             {
+				if (!this.hasOwnProperty(key)) {
+					continue;
+				}
+				
                 // Only consider components.
                 if(!(this[key] is SmashComponent))
                     continue;
